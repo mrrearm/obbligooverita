@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obbligo o Verità</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        h1 {
+            color: white;
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s ease-in-out infinite;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+        }
+
+        .buttons-container {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 40px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .game-button {
+            padding: 20px 40px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            min-width: 180px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .truth-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            box-shadow: 0 10px 30px rgba(79, 172, 254, 0.4);
+        }
+
+        .dare-btn {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+            box-shadow: 0 10px 30px rgba(250, 112, 154, 0.4);
+        }
+
+        .game-button:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-button:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        .game-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .game-button:hover::before {
+            left: 100%;
+        }
+
+        .result-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease-out;
+        }
+
+        .result-container.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .result-text {
+            color: white;
+            font-size: 1.2rem;
+            line-height: 1.6;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .emoji {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: block;
+            animation: bounce 2s infinite;
+        }
+
+        .reset-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes gradientShift {
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 25px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 2.2rem;
+            }
+
+            .buttons-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+
+            .game-button {
+                width: 100%;
+                max-width: 280px;
+                font-size: 1.1rem;
+                padding: 18px 30px;
+            }
+
+            .result-text {
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .game-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Obbligo o Verità</h1>
+        <p class="subtitle">Scegli la tua sfida e preparati al divertimento!</p>
+        
+        <div class="buttons-container">
+            <button class="game-button dare-btn" onclick="getRandomDare()">
+                🎯 Obbligo
+            </button>
+            <button class="game-button truth-btn" onclick="getRandomTruth()">
+                🤔 Verità
+            </button>
+        </div>
+
+        <div class="result-container" id="resultContainer">
+            <div class="result-text" id="resultText">
+                Clicca su uno dei bottoni per iniziare il gioco!
+            </div>
+        </div>
+
+        <button class="reset-btn" onclick="resetGame()" style="display: none;" id="resetBtn">
+            🔄 Nuova Sfida
+        </button>
+    </div>
+
+    <script>
+        const truths = [
+            "Qual è il segreto più imbarazzante che non hai mai detto a nessuno?",
+            "Chi è stata la tua prima cotta e cosa è successo?",
+            "Qual è la bugia più grande che hai mai detto ai tuoi genitori?",
+            "Hai mai spiato i messaggi di qualcuno? Di chi?",
+            "Qual è la cosa più stupida che hai fatto per amore?",
+            "Quale celebrità ti piace segretamente?",
+            "Hai mai fatto finta di essere malato per saltare scuola/lavoro?",
+            "Qual è il tuo sogno nel cassetto che non hai mai confessato?",
+            "Hai mai rubato qualcosa? Cosa?",
+            "Qual è il complimento più bello che hai mai ricevuto?",
+            "Hai mai avuto un sogno strano su qualcuno presente qui?",
+            "Qual è la cosa più infantile che fai ancora adesso?",
+            "Hai mai pianto guardando un film? Quale?",
+            "Qual è la tua paura più irrazionale?",
+            "Hai mai mentito sulla tua età? Perché?",
+            "Qual è il messaggio più imbarazzante che hai inviato per sbaglio?",
+            "Chi è la persona che ti fa più innervosire e perché?",
+            "Hai mai cantato sotto la doccia? Quale canzone?",
+            "Qual è la cosa più strana che hai cercato su Google?",
+            "Hai mai fingido di non vedere qualcuno per evitarlo?",
+            "Qual è il soprannome più imbarazzante che hai mai avuto?",
+            "Hai mai parlato da solo? Di cosa?",
+            "Qual è la cosa più costosa che hai mai rotto?",
+            "Hai mai avuto una conversazione immaginaria vincente sotto la doccia?",
+            "Qual è la moda del passato che seguivi e ora ti vergogni?"
+        ];
+
+        const dares = [
+            "Canta una canzone inventata sui calzini per 30 secondi",
+            "Fai 10 flessioni consecutive senza fermarti",
+            "Parla con un accento straniero per i prossimi 5 minuti",
+            "Balla per 1 minuto senza musica",
+            "Manda un messaggio carino a una persona a caso nella tua rubrica",
+            "Fai finta di essere un animale per 2 minuti, gli altri devono indovinare quale",
+            "Racconta una barzelletta che non fa ridere nessuno",
+            "Fai una faccia buffa e tienila per 10 secondi",
+            "Descrivi il tuo piatto preferito usando solo gesti, senza parlare",
+            "Canta 'Tanti Auguri' in stile opera",
+            "Fai un complimento sincero a ogni persona presente",
+            "Imita una celebrità famosa per 1 minuto",
+            "Bevi un bicchiere d'acqua senza usare le mani",
+            "Racconta una storia inventata di 2 minuti su come hai salvato il mondo",
+            "Fai 20 jumping jacks",
+            "Parla per 1 minuto descrivendo tutto quello che vedi senza fermarti",
+            "Fai finta di essere un robot per i prossimi 3 minuti",
+            "Canta il tuo nome come se fosse una canzone pop",
+            "Fai una sfilata di moda immaginaria per 1 minuto",
+            "Racconta una favola inventata con te come protagonista",
+            "Imita il verso di 5 animali diversi",
+            "Fai un discorso motivazionale di 1 minuto sulle verdure",
+            "Balla il tip tap (o fingi di saperlo fare) per 30 secondi",
+            "Fai finta di essere al telefono con tua nonna per 1 minuto",
+            "Descrivi il tuo sogno più strano facendo anche i gesti"
+        ];
+
+        function getRandomTruth() {
+            const randomIndex = Math.floor(Math.random() * truths.length);
+            const truth = truths[randomIndex];
+            showResult(`<span class="emoji">💭</span>${truth}`, 'truth');
+        }
+
+        function getRandomDare() {
+            const randomIndex = Math.floor(Math.random() * dares.length);
+            const dare = dares[randomIndex];
+            showResult(`<span class="emoji">🎯</span>${dare}`, 'dare');
+        }
+
+        function showResult(text, type) {
+            const resultContainer = document.getElementById('resultContainer');
+            const resultText = document.getElementById('resultText');
+            const resetBtn = document.getElementById('resetBtn');
+
+            // Hide container first
+            resultContainer.classList.remove('show');
+            
+            setTimeout(() => {
+                resultText.innerHTML = text;
+                resultContainer.classList.add('show');
+                resetBtn.style.display = 'inline-block';
+                
+                // Add special styling based on type
+                if (type === 'truth') {
+                    resultContainer.style.background = 'rgba(79, 172, 254, 0.2)';
+                    resultContainer.style.borderColor = 'rgba(79, 172, 254, 0.4)';
+                } else {
+                    resultContainer.style.background = 'rgba(250, 112, 154, 0.2)';
+                    resultContainer.style.borderColor = 'rgba(250, 112, 154, 0.4)';
+                }
+            }, 200);
+        }
+
+        function resetGame() {
+            const resultContainer = document.getElementById('resultContainer');
+            const resultText = document.getElementById('resultText');
+            const resetBtn = document.getElementById('resetBtn');
+
+            resultContainer.classList.remove('show');
+            
+            setTimeout(() => {
+                resultText.innerHTML = 'Clicca su uno dei bottoni per iniziare il gioco!';
+                resultContainer.style.background = 'rgba(255, 255, 255, 0.1)';
+                resultContainer.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                resetBtn.style.display = 'none';
+                resultContainer.classList.add('show');
+            }, 200);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            const resultContainer = document.getElementById('resultContainer');
+            setTimeout(() => {
+                resultContainer.classList.add('show');
+            }, 500);
+        });
+    </script>
+</body>
+</html>
