@@ -163,6 +163,81 @@
             transform: translateY(-2px);
         }
 
+        .answer-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease-out;
+        }
+
+        .answer-container.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #answerInput {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 15px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        #answerInput:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 20px rgba(79, 172, 254, 0.3);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .answer-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .submit-btn, .skip-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            min-width: 140px;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .skip-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .submit-btn:hover, .skip-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:hover {
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.6);
+        }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -223,7 +298,17 @@
             }
         }
 
-        @media (max-width: 480px) {
+                    @media (max-width: 480px) {
+                .answer-buttons {
+                    flex-direction: column;
+                    align-items: center;
+                }
+
+                .submit-btn, .skip-btn {
+                    width: 100%;
+                    max-width: 200px;
+                }
+            }
             h1 {
                 font-size: 1.8rem;
             }
@@ -255,6 +340,22 @@
         <div class="result-container" id="resultContainer">
             <div class="result-text" id="resultText">
                 Clicca su uno dei bottoni per iniziare il gioco!
+            </div>
+        </div>
+
+        <div class="answer-container" id="answerContainer" style="display: none;">
+            <textarea 
+                id="answerInput" 
+                placeholder="Scrivi qui la tua risposta..."
+                rows="4"
+            ></textarea>
+            <div class="answer-buttons">
+                <button class="submit-btn" onclick="submitAnswer()">
+                    📝 Invia Risposta
+                </button>
+                <button class="skip-btn" onclick="skipAnswer()">
+                    ⏭️ Salta
+                </button>
             </div>
         </div>
 
@@ -320,16 +421,116 @@
             "Descrivi il tuo sogno più strano facendo anche i gesti"
         ];
 
+        // Store for Google Forms integration
+        let currentQuestion = '';
+        let gameData = [];
+
         function getRandomTruth() {
             const randomIndex = Math.floor(Math.random() * truths.length);
             const truth = truths[randomIndex];
+            currentQuestion = truth;
             showResult(`<span class="emoji">💭</span>${truth}`, 'truth');
+            showAnswerBox();
         }
 
         function getRandomDare() {
             const randomIndex = Math.floor(Math.random() * dares.length);
             const dare = dares[randomIndex];
             showResult(`<span class="emoji">🎯</span>${dare}`, 'dare');
+            hideAnswerBox();
+        }
+
+        function showAnswerBox() {
+            const answerContainer = document.getElementById('answerContainer');
+            answerContainer.style.display = 'block';
+            setTimeout(() => {
+                answerContainer.classList.add('show');
+            }, 300);
+        }
+
+        function hideAnswerBox() {
+            const answerContainer = document.getElementById('answerContainer');
+            answerContainer.classList.remove('show');
+            setTimeout(() => {
+                answerContainer.style.display = 'none';
+                document.getElementById('answerInput').value = '';
+            }, 300);
+        }
+
+        function submitAnswer() {
+            const answer = document.getElementById('answerInput').value.trim();
+            
+            if (!answer) {
+                alert('Per favore scrivi una risposta prima di inviare!');
+                return;
+            }
+
+            // Store data for Google Forms
+            const responseData = {
+                question: currentQuestion,
+                answer: answer,
+                timestamp: new Date().toISOString(),
+                type: 'truth'
+            };
+            
+            gameData.push(responseData);
+            
+            // Log to console for development (remove in production)
+            console.log('Dati per Google Forms:', responseData);
+            console.log('Tutti i dati raccolti:', gameData);
+            
+            // Here you would integrate with Google Forms API
+            sendToGoogleForms(responseData);
+            
+                        // Show success message
+            alert('Grazie per la risposta! 📝 Continua con le domande o scegli obbligo');
+            
+            
+            // Reset for next question
+            hideAnswerBox();
+            document.getElementById('resetBtn').style.display = 'inline-block';
+        }
+
+        function skipAnswer() {
+            // Store skipped question data
+            const responseData = {
+                question: currentQuestion,
+                answer: '[SALTATA]',
+                timestamp: new Date().toISOString(),
+                type: 'truth'
+            };
+            
+            gameData.push(responseData);
+            console.log('Domanda saltata:', responseData);
+            
+            hideAnswerBox();
+            document.getElementById('resetBtn').style.display = 'inline-block';
+        }
+
+        // Function to send data to Google Forms
+        function sendToGoogleForms(data) {
+            // SOSTITUISCI CON I TUOI DATI:
+            const GOOGLE_FORM_ID = '1FAIpQLSdm9bvBLt3MN1H1D7r7mtOhqH3rzyibOYRwuwnQ8anXLPb_hg';
+            const QUESTION_ENTRY_ID = 'entry.1161153471';  // es: entry.123456789
+            const ANSWER_ENTRY_ID = 'entry.1320211931';   // es: entry.987654321
+            const TIMESTAMP_ENTRY_ID = 'entry.990347170'; // es: entry.456789123
+            
+            const formUrl = `https://docs.google.com/forms/d/e/1FAIpQLSdm9bvBLt3MN1H1D7r7mtOhqH3rzyibOYRwuwnQ8anXLPb_hg/formResponse`;
+            const formData = new FormData();
+            
+            formData.append(QUESTION_ENTRY_ID, data.question);
+            formData.append(ANSWER_ENTRY_ID, data.answer);
+            formData.append(TIMESTAMP_ENTRY_ID, data.timestamp);
+            
+            fetch(formUrl, {
+                method: 'POST',
+                body: formData,
+                mode: 'no-cors'
+            }).then(() => {
+                console.log('Dati inviati a Google Forms');
+            }).catch(error => {
+                console.error('Errore invio a Google Forms:', error);
+            });
         }
 
         function showResult(text, type) {
@@ -362,6 +563,7 @@
             const resetBtn = document.getElementById('resetBtn');
 
             resultContainer.classList.remove('show');
+            hideAnswerBox();
             
             setTimeout(() => {
                 resultText.innerHTML = 'Clicca su uno dei bottoni per iniziare il gioco!';
@@ -369,6 +571,7 @@
                 resultContainer.style.borderColor = 'rgba(255, 255, 255, 0.2)';
                 resetBtn.style.display = 'none';
                 resultContainer.classList.add('show');
+                currentQuestion = '';
             }, 200);
         }
 
